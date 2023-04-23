@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>Title of the document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+        
+    <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .btn-shadow {
+            box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .btnOn {
+            display: block;
+        }
+
+        .btnOff {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-dark text-light">
+
+    <div class="text-center">
+        <a type="button" id="start" onclick="startTrack()" style="position: absolute; z-index: 1000; left: 10%; top: 90%;"
+            class="btn btn-info w-75 btn-shadow">Iniciar activitat</a>
+        <a type="button" id="end" onclick="endTrack()" style="position: absolute; z-index: 1000; left: 10%; top: 90%;"
+            class="btn btn-info w-75 btn-shadow btnOff">Finalitzar activitat</a>
+    </div>
+    <div id="map"></div>
+
+    <script>
+        function changeButton() {
+            let start = document.getElementById("start");
+            let end = document.getElementById("end");
+            end.classList.replace("btnOff", "btnOn");
+            start.classList.add("btnOff");
+        }
+
+        var longitud = "";
+        var latitud = "";
+        var idProcess;
+        var positions = [];
+        var polylines = [];
+        var dist = 0; //En metros
+        var trams = [];
+
+        var map = L.map('map');
+
+        function startMap(){
+            if(navigator.geolocation){
+                navigator.geolocation.getCurrentPosition(position => {
+                    longitud = position.coords.longitude;
+                    latitud = position.coords.latitude;
+                    map.setView([latitud, longitud], 14);
+                    var tiles = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+                        id: 'mapbox/streets-v11',
+                        tileSize: 512,
+                        zoomOffset: -1,
+                    }).addTo(map);
+                    var circle = L.circle([latitud, longitud], {
+                        color: 'blue',
+                        fillColor: '#009bff',
+                        fillOpacity: 0.5,
+                        radius: 50
+                    }).addTo(map);
+                })
+            }
+        }
+
+        let rand = true;
+
+
+        function iniciaWachPosition() {
+            idProcess = navigator.geolocation.watchPosition(onGpsChangeSuccess, onGpsError, {
+            maximumAge: 0,
+            enableHighAccuracy: false,
+            timeout: 10000
+            });
+
+            function onGpsChangeSuccess(position) {
+                if (longitud != position.coords.longitude && latitud != position.coords.longitude || rand == true) {
+                    longitud = position.coords.longitude;
+                    latitud = position.coords.latitude;
+                    mapa(latitud, longitud);
+                    rand = false;
+                }
+            }
+
+            function onGpsError(lError) {
+                console.log("Error falta de la muerte mundial");
+                console.warn('ERROR(' + lError.code + '): ' + lError.message);
+            }
+
+            function mapa(lat, long){
+                map.setView([lat, long], 14)
+                circle = L.circle([lat, long], {
+                    color: 'blue',
+                    fillColor: '#009bff',
+                    fillOpacity: 0.5,
+                    radius: 50
+                }).addTo(map);
+
+                let actualPos = [lat, long];
+                positions.push(actualPos);
+                console.log(positions);
+
+                polylines.push([lat, long]);
+                var multiPolyline = L.polyline(polylines, {color: 'blue', opacity: '70%'}).addTo(map);
+                    map.setView([lat, long], 14)
+                    map.removeLayer(circle);
+                    circle = L.circle([lat, long], {
+                        color: 'blue',
+                        fillColor: '#009bff',
+                        fillOpacity: 0.5,
+                        radius: 50
+                }).addTo(map);
+
+                trams.push({lat: lat, lng: long});
+                let arryLng = trams.length;
+                if (arryLng >= 2){ dist += map.distance(trams[arryLng-2],trams[arryLng-1]); }
+            }
+        }
+
+        function startTrack() {
+            changeButton();
+            iniciaWachPosition();
+        }
+        function endTrack(){
+            dist = (Math.round(dist*100)/100).toFixed(0);
+            var dataMap = {
+                distance: dist + " m",
+                positions: positions,
+            };
+
+            let dataMapTxt = JSON.stringify(dataMap)
+            localStorage.setItem("dataMap", dataMapTxt);
+
+            window.location.href = 'resum.html';
+        }
+
+        window.onload = startMap();
+    </script>
+
+</body>
+
+</html>
