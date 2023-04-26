@@ -30,7 +30,7 @@
             <th>Tipus d'activitat</th>
             <th>Usuari</th>
             <th>Data</th>
-            <th>Llargada</th>
+            <th>Distancia</th>
           </tr>
         </thead>
         <tbody>
@@ -58,7 +58,7 @@
             <td class="text-end fecha"></td>
           </tr>
           <tr>
-            <th>Llargada</th>
+            <th>Distancia</th>
             <td class="text-end dist"></td>
           </tr>
         </tbody>
@@ -102,7 +102,7 @@
     document.getElementsByClassName("fecha")[0].innerHTML = fecha;
     document.getElementsByClassName("fecha")[1].innerHTML = fecha;
     document.getElementsByClassName('dist')[0].innerHTML = dataMap.distance + `m - (${distConverter(dataMap.distance)} km)`;
-    document.getElementsByClassName('dist')[1].innerHTML = dataMap.distance;
+    document.getElementsByClassName('dist')[1].innerHTML = dataMap.distance + `m - (${distConverter(dataMap.distance)} km)`;
 
     let desc = document.getElementById('desc');
     desc.innerHTML = data.description;

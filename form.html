@@ -22,11 +22,12 @@
         <label for="activitat" class="form-label">Tipus d'activitat</label>
         <select class="form-select mb-5" id="activitat" aria-label="Default select example">
             <option value="null" disabled selected hidden>Selecciona una activitat</option>
-            <option value="bici">bici</option>
-            <option value="patins">patins</option>
-            <option value="runer">runer</option>
-            <option value="treking">treking</option>
             <option value="caminar">caminar</option>
+            <option value="runer">runer</option>
+            <option value="patins">patins</option>
+            <option value="bici">bici</option>
+            <option value="treking">moto</option>
+            <option value="cotxe">cotxe</option>
         </select>
         <button type="submit" class="btn btn-info btn-lg w-100 mt-3">Iniciar activitat</button>
     </form>
@@ -36,6 +37,9 @@
     window.onload = function(){
         if('data' in localStorage){
             localStorage.removeItem('data')
+        }
+        if('dataMap' in localStorage){
+            localStorage.removeItem('dataMap')
         }
     }
 
@@ -54,7 +58,7 @@
     function validarname() {
         let name = document.getElementById('name').value;
         if (!name.includes(' ')) {
-            if (name.length >= 3 && name.length <= 10) {
+            if (name.length >= 3) {
                 return true;
             }
         }

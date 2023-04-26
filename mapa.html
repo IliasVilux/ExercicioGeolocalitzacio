@@ -43,7 +43,6 @@
         window.onload = function () {
             let dataTxt = localStorage.getItem("data");
             let data = JSON.parse(dataTxt);
-            console.log(data);
             if (data == null || data.name == null || data.description == null || data.activity == null) {
                 window.location.href = 'form.html';
             }
@@ -65,7 +64,7 @@
                 navigator.geolocation.getCurrentPosition(position => {
                     longitud = position.coords.longitude;
                     latitud = position.coords.latitude;
-                    map.setView([latitud, longitud], 14);
+                    map.setView([latitud, longitud], 17);
                     var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         id: 'mapbox/streets-v11',
                         tileSize: 512,
@@ -75,7 +74,7 @@
                         color: 'blue',
                         fillColor: '#009bff',
                         fillOpacity: 0.5,
-                        radius: 50
+                        radius: 5
                     }).addTo(map);
                 })
             }
@@ -104,27 +103,26 @@
             }
 
             function mapa(lat, long) {
-                map.setView([lat, long], 14)
+                map.setView([lat, long], 17)
                 circle = L.circle([lat, long], {
                     color: 'blue',
                     fillColor: '#009bff',
                     fillOpacity: 0.5,
-                    radius: 50
+                    radius: 5
                 }).addTo(map);
 
                 let actualPos = [lat, long];
                 positions.push(actualPos);
-                console.log(positions);
 
                 polylines.push([lat, long]);
                 var multiPolyline = L.polyline(polylines, { color: 'blue', opacity: '70%' }).addTo(map);
-                map.setView([lat, long], 14)
+                map.setView([lat, long], 17)
                 map.removeLayer(circle);
                 circle = L.circle([lat, long], {
                     color: 'blue',
                     fillColor: '#009bff',
                     fillOpacity: 0.5,
-                    radius: 50
+                    radius: 5
                 }).addTo(map);
 
                 trams.push({ lat: lat, lng: long });
